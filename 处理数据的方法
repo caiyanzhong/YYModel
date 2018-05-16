@@ -1,0 +1,50 @@
+- (void) loadDate {
+    NSDictionary *json =[self getJsonWithJsonName:@"data"];
+    HomeModel *homeModel = [HomeModel yy_modelWithDictionary:json];
+    NSDictionary *homeDataDict = [homeModel valueForKey:@"homeData"];
+    NSDictionary *homeNeardyDict = [homeModel valueForKey:@"homeNeardy"];
+
+    //获取banner列表
+    NSArray *imageArray = [homeDataDict valueForKey:@"banner"];
+    NSMutableArray *urlarray = [NSMutableArray array];
+    NSMutableArray *imgarray1 = [NSMutableArray array];
+    //遍历数组获取里面的字典，在调用YYModel方法
+    [imageArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        Banner *bannerModel = [Banner yy_modelWithDictionary:obj];
+        NSString *url = [bannerModel valueForKey:@"bannerUrl"];
+        NSString *image = [bannerModel valueForKey:@"bannerImgSrc"];
+        [urlarray addObject:image];
+        [imgarray1 addObject:url];
+    }];
+    self.netImages = [urlarray copy];
+    self.netUrl = [imgarray1 copy];
+    
+    //获取公告列表
+    NSArray *newsArray = [homeDataDict valueForKey:@"news"];
+    NSMutableArray *newsarray = [NSMutableArray array];
+    [newsArray enumerateObjectsUsingBlock:^(id  _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        News *newsModel = [News yy_modelWithDictionary:obj];
+        NSString *title = [newsModel valueForKey:@"newsTitle"];
+        [newsarray addObject:title];
+    }];
+    self.newsArray = [newsarray copy];
+    
+    //获取热门商品
+    self.hotArray = [homeDataDict valueForKey:@"hotGoods"];
+    
+    //获取推荐商品
+    self.recommendArray = [homeDataDict valueForKey:@"recommendGoods"];
+    
+    //获取附近商圈
+    self.businessArray = [homeNeardyDict valueForKey:@"nearBusiness"];
+    
+    //获取附近商家
+    self.nearArray = [homeNeardyDict valueForKey:@"nearSeller"];
+}
+
+//tableView中的处理
+HotGoods *hotModel = [HotGoods yy_modelWithDictionary:self.hotArray[indexPath.row]];
+    cell.titleLabel.text = [hotModel valueForKeyPath:@"goodsName"];
+    [cell.imageView sd_setImageWithURL:[NSURL URLWithString:[hotModel valueForKeyPath:@"goodsImg"]] placeholderImage:[UIImage imageNamed:@"placeholder.png"]];
+    cell.priceLabel.text = [hotModel valueForKeyPath:@"goodsPrice"];
+    cell.countLabel.text = [hotModel valueForKeyPath:@"goodsSellerNum"];
